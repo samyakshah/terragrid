@@ -31,11 +31,11 @@
   margin-top: var(--gf-sp-1);
 }
 
-.value[data-positive="true"] {
+.value[data-positive='true'] {
   color: var(--gf-success);
 }
 
-.value[data-muted="true"] {
+.value[data-muted='true'] {
   color: var(--gf-text-3);
 }
 

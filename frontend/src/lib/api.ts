@@ -28,6 +28,40 @@ interface ErrorPayload {
   code: number
 }
 
+export interface CreatePurchaseOrderInput {
+  sessionId: string | null
+  config: SiteConfig
+  summary: unknown
+  contact: {
+    companyName: string
+    installationAddress: string
+    firstName: string
+    lastName: string
+    email: string
+    phoneNumber: string
+    contactPreference: 'sms' | 'email' | 'phone'
+  }
+  payment?: {
+    cardLast4: string
+    billingZip: string
+  }
+  depositCents?: number
+}
+
+export interface CreatePurchaseOrderResponse {
+  orderId: string
+  createdAt: number
+}
+
+export function createPurchaseOrder(
+  input: CreatePurchaseOrderInput,
+): Promise<CreatePurchaseOrderResponse> {
+  return request('/orders', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...init,

@@ -2,48 +2,61 @@
  * TerraGrid — design tokens.
  *
  * Single source of truth for colour, type, spacing, and radii. All component
- * CSS reads from these variables. Never use hex literals in components.
+ * CSS reads from these variables. Avoid hardcoded colors in components unless
+ * the value represents a fixed device color in the site layout.
  *
- * Theme inspiration: Tesla's product UI — deep neutrals, surgical red accent,
- * white text, generous negative space.
+ * Default theme is light for predictable take-home review screenshots.
+ * Dark mode is still supported through prefers-color-scheme.
  */
 
 :root {
-  /* ─── Surfaces ─────────────────────────────────────────── */
-  --gf-bg:          #171a20;   /* page background */
-  --gf-surface:     #1f2228;   /* card / panel surface */
-  --gf-raised:      #2a2d34;   /* hover, elevated controls */
-  --gf-sunken:      #0f1115;   /* insets, code blocks */
+  color-scheme: light;
 
-  /* ─── Borders ──────────────────────────────────────────── */
-  --gf-border:        #3a3d44;
-  --gf-border-subtle: #2a2d34;
-  --gf-border-strong: #54585f;
+  /* ─── Surfaces: light theme ────────────────────────────── */
+  --gf-bg: #f4f4f4; /* page background */
+  --gf-surface: #ffffff; /* card / panel surface */
+  --gf-raised: #f8f8f8; /* hover, elevated controls */
+  --gf-sunken: #eef0f3; /* insets, canvas surface */
 
-  /* ─── Text ─────────────────────────────────────────────── */
-  --gf-text:    #ffffff;
-  --gf-text-2:  #9ea1a6;        /* secondary, labels */
-  --gf-text-3:  #5e6168;        /* tertiary, metadata */
+  /* ─── Borders: light theme ─────────────────────────────── */
+  --gf-border: #d4d7dc;
+  --gf-border-subtle: #e7e9ed;
+  --gf-border-strong: #a8adb5;
+
+  /* ─── Text: light theme ────────────────────────────────── */
+  --gf-text: #171a20;
+  --gf-text-2: #5c626b;
+  --gf-text-3: #8a9099;
+
+  /* ─── Theme-aware SVG / layout tokens ──────────────────── */
+  --gf-grid-line: rgba(23, 26, 32, 0.08);
+  --gf-device-stroke: rgba(23, 26, 32, 0.16);
+  --gf-device-hover-stroke: #171a20;
+  --gf-canvas-gradient: linear-gradient(180deg, rgba(23, 26, 32, 0.025), rgba(23, 26, 32, 0.01));
 
   /* ─── Accents ──────────────────────────────────────────── */
-  --gf-red:          #e82127;   /* primary CTAs only */
-  --gf-red-hover:    #c91a1f;
-  --gf-red-muted:    rgba(232, 33, 39, 0.12);
+  --gf-red: #e82127;
+  --gf-red-hover: #c91a1f;
+  --gf-red-muted: rgba(232, 33, 39, 0.12);
 
-  --gf-success:       #5bb318;
-  --gf-success-muted: rgba(91, 179, 24, 0.12);
-  --gf-warning:       #f4a523;
-  --gf-warning-muted: rgba(244, 165, 35, 0.12);
+  --gf-blue: #3e6ae1;
+  --gf-blue-hover: #3457b1;
+  --gf-brand-font: 'Michroma', 'Inter', sans-serif;
+
+  --gf-success: #3f8f13;
+  --gf-success-muted: rgba(63, 143, 19, 0.12);
+  --gf-warning: #b66d00;
+  --gf-warning-muted: rgba(182, 109, 0, 0.12);
 
   /* ─── Typography ───────────────────────────────────────── */
   --gf-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --gf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --gf-fs-display:  28px;
-  --gf-fs-title:    18px;
-  --gf-fs-body:     14px;
-  --gf-fs-caption:  12px;
-  --gf-fs-over:     11px;
+  --gf-fs-display: 28px;
+  --gf-fs-title: 18px;
+  --gf-fs-body: 14px;
+  --gf-fs-caption: 12px;
+  --gf-fs-over: 11px;
 
   /* ─── Spacing scale (4px base) ─────────────────────────── */
   --gf-sp-1: 4px;
@@ -63,16 +76,55 @@
   /* ─── Motion ───────────────────────────────────────────── */
   --gf-ease: cubic-bezier(0.4, 0, 0.2, 1);
   --gf-dur-fast: 120ms;
-  --gf-dur:      200ms;
+  --gf-dur: 200ms;
 }
 
-/* ─── Reset + base ───────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
 
-*, *::before, *::after {
+    /* ─── Surfaces: dark theme ───────────────────────────── */
+    --gf-bg: #171a20;
+    --gf-surface: #1f2228;
+    --gf-raised: #2a2d34;
+    --gf-sunken: #0f1115;
+
+    /* ─── Borders: dark theme ────────────────────────────── */
+    --gf-border: #3a3d44;
+    --gf-border-subtle: #2a2d34;
+    --gf-border-strong: #54585f;
+
+    /* ─── Text: dark theme ───────────────────────────────── */
+    --gf-text: #ffffff;
+    --gf-text-2: #9ea1a6;
+    --gf-text-3: #5e6168;
+
+    /* ─── Theme-aware SVG / layout tokens ────────────────── */
+    --gf-grid-line: rgba(255, 255, 255, 0.09);
+    --gf-device-stroke: rgba(255, 255, 255, 0.22);
+    --gf-device-hover-stroke: #ffffff;
+    --gf-canvas-gradient: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.01)
+    );
+
+    --gf-success: #5bb318;
+    --gf-success-muted: rgba(91, 179, 24, 0.12);
+    --gf-warning: #f4a523;
+    --gf-warning-muted: rgba(244, 165, 35, 0.12);
+  }
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
 }
@@ -97,7 +149,8 @@ button:disabled {
   cursor: not-allowed;
 }
 
-input, button {
+input,
+button {
   color: inherit;
 }
 

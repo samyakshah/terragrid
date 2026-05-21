@@ -1,8 +1,8 @@
 /**
  * TerraGrid — shared types.
  *
- * This file is imported by both the frontend and the backend (via `@shared/*` path alias). 
- * No runtime code lives here — only type declarations and the device catalog metadata 
+ * This file is imported by both the frontend and the backend (via `@shared/*` path alias).
+ * No runtime code lives here — only type declarations and the device catalog metadata
  * that both sides agree on.
  */
 
@@ -33,7 +33,7 @@ export interface DeviceSpec {
   depthFt: number
   energyMWh: number
   cost: number
-  year: number | null    // null for transformer — spec has no release date
+  year: number | null // null for transformer — spec has no release date
 }
 
 // Site configuration (the user's input)
@@ -63,20 +63,51 @@ export interface LayoutRow {
 // Summary (the metric cards)
 
 export interface SiteSummary {
-  totalBudget: number       // USD
+  totalBudget: number // USD
   transformerCount: number
-  siteWidthFt: number       // max row width
-  siteDepthFt: number       // rows * 10
-  netEnergyMWh: number      // can be negative
-  homesPowered: number      // clamped to >= 0
+  siteWidthFt: number // max row width
+  siteDepthFt: number // rows * 10
+  netEnergyMWh: number // can be negative
+  energyDensityKwhPerSqFt: number
 }
 
 // Persistence
 
 export interface Session {
-  id: string                // UUID
+  id: string // UUID
   name: string
   config: SiteConfig
-  createdAt: number         // Unix ms
-  updatedAt: number         // Unix ms
+  createdAt: number // Unix ms
+  updatedAt: number // Unix ms
+}
+
+// Order
+
+export interface OrderContactInfo {
+  companyName: string
+  installationAddress: string
+  firstName: string
+  lastName: string
+  email: string
+  phoneNumber: string
+  contactPreference: 'email' | 'sms' | 'phone'
+}
+
+export interface OrderPaymentSummary {
+  cardLast4: string
+  billingZip: string
+}
+
+export interface CreateOrderRequest {
+  sessionId: string | null
+  config: SiteConfig
+  summary: SiteSummary
+  contact: OrderContactInfo
+  payment: OrderPaymentSummary
+  dueTodayCents: number
+}
+
+export interface CreateOrderResponse {
+  orderId: string
+  createdAt: string
 }

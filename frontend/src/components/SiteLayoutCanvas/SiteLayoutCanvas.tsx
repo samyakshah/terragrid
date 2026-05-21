@@ -1,12 +1,21 @@
-import type { LayoutRow, SiteSummary, DevicePlacement, PlacementType } from '@shared/types'
+import { useRef, useState } from 'react'
+import type {
+  LayoutRow,
+  SiteSummary,
+  DevicePlacement,
+  PlacementType,
+  SiteConfig,
+} from '@shared/types'
 import { DEVICES, MAX_SITE_WIDTH_FT, TRANSFORMER } from '@/constants/devices'
-import { formatBudget, formatHomes } from '@/lib/format'
+import { formatBudget, formatNumber } from '@/lib/format'
+import { exportLayoutPdf } from '@/utils/exportPDF'
 import { SiteLayoutLegend } from './SiteLayoutLegend'
 import styles from './SiteLayoutCanvas.module.css'
 
 interface SiteLayoutCanvasProps {
   layout: LayoutRow[]
   summary: SiteSummary
+  config: SiteConfig
 }
 
 const ROW_DEPTH_FT = 10
@@ -56,11 +65,39 @@ function getGridLines(maxValue: number): number[] {
   return lines
 }
 
-export function SiteLayoutCanvas({ layout, summary }: SiteLayoutCanvasProps) {
+export function SiteLayoutCanvas({ layout, summary, config }: SiteLayoutCanvasProps) {
+  const exportRef = useRef<HTMLDivElement | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
+
   const hasLayout = layout.length > 0
   const canvasDepthFt = Math.max(summary.siteDepthFt, MIN_CANVAS_DEPTH_FT)
   const verticalGridLines = getGridLines(MAX_SITE_WIDTH_FT)
   const horizontalGridLines = getGridLines(canvasDepthFt)
+
+  const totalUsedWidthFt = layout.reduce((sum, row) => sum + row.totalWidthFt, 0)
+  const totalCapacityFt = Math.max(layout.length * MAX_SITE_WIDTH_FT, 1)
+  const packingEfficiency = hasLayout ? Math.round((totalUsedWidthFt / totalCapacityFt) * 100) : 0
+
+  const energyDensity =
+    'energyDensityKwhPerSqFt' in summary
+      ? `${summary.energyDensityKwhPerSqFt.toFixed(2)} kWh / sq ft`
+      : '0.00 kWh / sq ft'
+
+  const handleDownloadPdf = async () => {
+    if (!exportRef.current || !hasLayout) return
+
+    setIsExporting(true)
+
+    try {
+      await exportLayoutPdf({
+        layout,
+        config,
+        summary,
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <section className={styles.panel} aria-labelledby="site-layout-title">
@@ -76,21 +113,33 @@ export function SiteLayoutCanvas({ layout, summary }: SiteLayoutCanvasProps) {
           </p>
         </div>
 
-        <div className={styles.metrics} aria-label="Layout metrics">
-          <div className={styles.metricPill}>
-            <span>Width used</span>
-            <strong>{summary.siteWidthFt}ft</strong>
+        <div className={styles.headerActions} aria-label="Layout actions and metrics">
+          <div className={styles.metrics} aria-label="Layout metrics">
+            <div className={styles.metricPill}>
+              <span>Width used</span>
+              <strong>{summary.siteWidthFt}ft</strong>
+            </div>
+
+            <div className={styles.metricPill}>
+              <span>Depth</span>
+              <strong>{summary.siteDepthFt}ft</strong>
+            </div>
+
+            <div className={styles.metricPill}>
+              <span>Area</span>
+              <strong>{formatNumber(summary.siteWidthFt * summary.siteDepthFt)} sq ft</strong>
+            </div>
           </div>
 
-          <div className={styles.metricPill}>
-            <span>Depth</span>
-            <strong>{summary.siteDepthFt}ft</strong>
-          </div>
-
-          <div className={styles.metricPill}>
-            <span>Area</span>
-            <strong>{formatHomes(summary.siteWidthFt * summary.siteDepthFt)} sq ft</strong>
-          </div>
+          <button
+            type="button"
+            className={styles.downloadButton}
+            onClick={handleDownloadPdf}
+            disabled={!hasLayout || isExporting}
+            data-export-ignore="true"
+          >
+            {isExporting ? 'Preparing PDF…' : 'Download PDF'}
+          </button>
         </div>
       </header>
 
@@ -106,7 +155,7 @@ export function SiteLayoutCanvas({ layout, summary }: SiteLayoutCanvasProps) {
           </p>
         </div>
       ) : (
-        <>
+        <div ref={exportRef} className={styles.exportSurface}>
           <div className={styles.ruler} aria-hidden="true">
             <span>0ft</span>
             <span>25ft</span>
@@ -230,7 +279,7 @@ export function SiteLayoutCanvas({ layout, summary }: SiteLayoutCanvasProps) {
               service clearances, fire lanes, and transformer adjacency rules.
             </p>
           </div>
-        </>
+        </div>
       )}
     </section>
   )

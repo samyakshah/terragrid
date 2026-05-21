@@ -3,28 +3,22 @@ import { DEVICES, TRANSFORMER, DEVICE_KEYS } from '@/constants/devices'
 import { computeTransformerCount } from './layoutEngine'
 
 /**
- * Average peak-hour household power demand: ~3 kWh in an hour.
- * So 1 MWh of battery capacity can serve ~333 homes for one peak hour.
- * This is the figure utilities and Tesla itself use in press releases
- * (e.g. Tesla's Hornsdale battery is marketed as serving "30,000 homes
- * for an hour" with ~100 MWh of storage).
- */
-const HOMES_PER_MWH_PEAK_HOUR = 333
-
-/**
  * Computes the four summary metrics displayed in the SummaryBar.
  * Pure function.
  */
 export function calculateSummary(config: SiteConfig, layout: LayoutRow[]): SiteSummary {
   const transformerCount = computeTransformerCount(config)
+  const siteWidthFt = computeSiteWidth(layout)
+  const siteDepthFt = computeSiteDepth(layout)
+  const netEnergyMWh = computeNetEnergy(config, transformerCount)
 
   return {
     totalBudget: computeBudget(config, transformerCount),
     transformerCount,
-    siteWidthFt: computeSiteWidth(layout),
-    siteDepthFt: computeSiteDepth(layout),
-    netEnergyMWh: computeNetEnergy(config, transformerCount),
-    homesPowered: computeHomesPowered(config, transformerCount),
+    siteWidthFt,
+    siteDepthFt,
+    netEnergyMWh,
+    energyDensityKwhPerSqFt: computeEnergyDensityKwhPerSqFt(netEnergyMWh, siteWidthFt, siteDepthFt),
   }
 }
 
@@ -54,8 +48,30 @@ function computeSiteDepth(layout: LayoutRow[]): number {
   return layout.length * 10
 }
 
-function computeHomesPowered(config: SiteConfig, transformerCount: number): number {
-  const energy = computeNetEnergy(config, transformerCount)
-  if (energy <= 0) return 0
-  return Math.round(energy * HOMES_PER_MWH_PEAK_HOUR)
+/**
+ * Energy density is the net usable energy divided by the physical site footprint.
+ *
+ * Formula:
+ *   energyDensity = netEnergyKWh / siteAreaSqFt
+ *
+ * Example:
+ *   8 MWh = 8,000 kWh
+ *   land = 100ft * 20ft = 2,000 sq ft
+ *   density = 8,000 / 2,000 = 4 kWh / sq ft
+ */
+function computeEnergyDensityKwhPerSqFt(
+  netEnergyMWh: number,
+  siteWidthFt: number,
+  siteDepthFt: number,
+): number {
+  const areaSqFt = siteWidthFt * siteDepthFt
+
+  if (areaSqFt <= 0 || netEnergyMWh <= 0) {
+    return 0
+  }
+
+  const netEnergyKWh = netEnergyMWh * 1000
+
+  // Keep two decimals for display usefulness.
+  return Math.round((netEnergyKWh / areaSqFt) * 100) / 100
 }

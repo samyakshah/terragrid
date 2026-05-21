@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { existsSync } from 'node:fs'
 import sessionsRouter from './routes/sessions.js'
+import ordersRouter from './routes/orders.js'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 3001
@@ -20,6 +21,7 @@ app.get('/health', (_req, res) => {
 })
 
 app.use('/sessions', sessionsRouter)
+app.use('/orders', ordersRouter)
 
 // Static frontend (when built)
 //
@@ -36,7 +38,12 @@ if (existsSync(frontendDist)) {
   // SPA fallback — any unmatched GET serves index.html so deep links
   // like /session/<uuid> work on direct page loads.
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
-    if (req.path.startsWith('/sessions') || req.path === '/health') return next()
+    if (
+      req.path.startsWith('/sessions') ||
+      req.path.startsWith('/orders') ||
+      req.path === '/health'
+    )
+      return next()
     res.sendFile(path.join(frontendDist, 'index.html'))
   })
 }

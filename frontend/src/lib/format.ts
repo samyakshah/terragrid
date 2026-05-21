@@ -32,9 +32,16 @@ export function formatLand(widthFt: number, depthFt: number): string {
   return `${widthFt}ft × ${depthFt}ft`
 }
 
-/** "2,498" — locale-aware thousand separators. */
-export function formatHomes(count: number): string {
+/** Format an integer with locale-aware thousand separators: 2498 → "2,498". */
+export function formatNumber(count: number): string {
   return count.toLocaleString('en-US')
+}
+
+export function formatEnergyDensity(value: number): string {
+  return `${value.toLocaleString(undefined, {
+    minimumFractionDigits: value === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })} kWh / sq ft`
 }
 
 /**

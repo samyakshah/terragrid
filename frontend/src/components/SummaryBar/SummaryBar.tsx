@@ -1,5 +1,11 @@
 import type { SiteSummary, SiteConfig } from '@shared/types'
-import { formatBudget, formatEnergy, formatLand, formatHomes, formatDeviceCount } from '@/lib/format'
+import {
+  formatBudget,
+  formatEnergy,
+  formatLand,
+  formatEnergyDensity,
+  formatDeviceCount,
+} from '@/lib/format'
 import { DEVICE_KEYS } from '@/constants/devices'
 import { MetricCard } from './MetricCard'
 import styles from './SummaryBar.module.css'
@@ -10,7 +16,7 @@ interface SummaryBarProps {
 }
 
 /**
- * Top row of metric cards: budget, land, energy, homes powered.
+ * Top row of metric cards: budget, land, net energy, energy density.
  *
  * The empty state (all zeros) renders muted "—" placeholders rather than
  * "$0 / 0ft × 0ft / 0 MWh" — the latter reads as real data, the former
@@ -52,9 +58,11 @@ export function SummaryBar({ summary, config }: SummaryBarProps) {
         muted={isEmpty}
       />
       <MetricCard
-        label="Homes powered"
-        value={isEmpty ? formatHomes(0) : formatHomes(summary.homesPowered)}
-        subtitle={isEmpty ? undefined : 'at peak demand'}
+        label="Energy density"
+        value={
+          isEmpty ? formatEnergyDensity(0) : formatEnergyDensity(summary.energyDensityKwhPerSqFt)
+        }
+        subtitle={isEmpty ? undefined : 'site footprint efficiency'}
         muted={isEmpty}
       />
     </div>

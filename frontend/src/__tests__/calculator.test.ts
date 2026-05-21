@@ -21,7 +21,7 @@ describe('calculateSummary', () => {
         siteWidthFt: 0,
         siteDepthFt: 0,
         netEnergyMWh: 0,
-        homesPowered: 0,
+        energyDensityKwhPerSqFt: 0,
       })
     })
   })
@@ -67,22 +67,6 @@ describe('calculateSummary', () => {
       const s = summarise(config({ megapackXL: 3 }))
       // 3 MegapackXL = 120ft must wrap. With 1 transformer, layout spans 2 rows.
       expect(s.siteDepthFt).toBe(20)
-    })
-  })
-
-  describe('homes powered', () => {
-    it('is 0 when net energy is non-positive', () => {
-      // 1 PowerPack = 1 MWh, but 0 transformers (floor(1/2)=0), so 1 MWh > 0
-      // For a clearer negative test, we'd need more transformers than batteries
-      // can support — not possible via config alone, but we can verify the clamp:
-      expect(summarise(EMPTY_CONFIG).homesPowered).toBe(0)
-    })
-
-    it('scales linearly with net energy (~333 homes per MWh)', () => {
-      const s = summarise(config({ megapackXL: 2 }))
-      // 7.5 MWh net → 7.5 * 333 ≈ 2497 or 2498 depending on rounding
-      expect(s.homesPowered).toBeGreaterThan(2400)
-      expect(s.homesPowered).toBeLessThan(2600)
     })
   })
 })

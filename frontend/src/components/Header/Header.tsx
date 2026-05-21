@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { LayoutDashboard, CircleHelp } from 'lucide-react'
 import { formatRelativeTime } from '@/lib/format'
 import styles from './Header.module.css'
 
@@ -7,27 +8,10 @@ interface HeaderProps {
   isSaving: boolean
   lastSavedAt: number | null
   error: string | null
-  onLoadClick: () => void
-  onNewSite: () => void
   onDismissError: () => void
 }
 
-/**
- * Top bar: brand mark on the left, save status in the middle, actions on the right.
- *
- * Save status is the only piece of UI that needs a periodic re-render to keep
- * "Saved · 2m ago" current. We tick once every 15 seconds — fine-grained enough
- * to feel live, infrequent enough to be invisible to React's render budget.
- */
-export function Header({
-  sessionId,
-  isSaving,
-  lastSavedAt,
-  error,
-  onLoadClick,
-  onNewSite,
-  onDismissError,
-}: HeaderProps) {
+export function Header({ sessionId, isSaving, lastSavedAt, error, onDismissError }: HeaderProps) {
   const [, forceTick] = useState(0)
 
   useEffect(() => {
@@ -38,30 +22,36 @@ export function Header({
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <span className={styles.brandMark}>◆</span>
-        <span className={styles.brandName}>TerraGrid</span>
+        <a className={styles.brandName} href="#" aria-label="TerraGrid home">
+          TerraGrid
+        </a>
       </div>
 
       <div className={styles.status} aria-live="polite">
         {error ? (
-          <button className={styles.errorPill} onClick={onDismissError}>
+          <button className={styles.errorPill} type="button" onClick={onDismissError}>
             <span className={styles.errorDot} aria-hidden="true" />
-            {error}
-            <span className={styles.errorDismiss} aria-hidden="true">×</span>
+            <span className={styles.errorText}>{error}</span>
+            <span className={styles.errorDismiss} aria-hidden="true">
+              ×
+            </span>
           </button>
         ) : (
           <SaveStatus sessionId={sessionId} isSaving={isSaving} lastSavedAt={lastSavedAt} />
         )}
       </div>
 
-      <div className={styles.actions}>
-        <button className={styles.btnSecondary} onClick={onLoadClick}>
-          Load session
-        </button>
-        <button className={styles.btnPrimary} onClick={onNewSite}>
-          New site
-        </button>
-      </div>
+      <nav className={styles.nav} aria-label="Primary navigation">
+        <a className={styles.navLink} href="#planner" aria-label="Go to planner">
+          <LayoutDashboard className={styles.navIcon} strokeWidth={1.8} />
+          <span>Planner</span>
+        </a>
+
+        <a className={styles.navLink} href="#support" aria-label="Go to support">
+          <CircleHelp className={styles.navIcon} strokeWidth={1.8} />
+          <span>Support</span>
+        </a>
+      </nav>
     </header>
   )
 }
@@ -92,10 +82,11 @@ function SaveStatus({ sessionId, isSaving, lastSavedAt }: SaveStatusProps) {
   }
 
   const relative = formatRelativeTime(lastSavedAt)
+
   return (
     <span className={styles.statusText}>
       <span className={styles.statusDot} data-state="saved" aria-hidden="true" />
-      Saved {relative && `· ${relative}`}
+      Saved {relative ? `· ${relative}` : ''}
     </span>
   )
 }

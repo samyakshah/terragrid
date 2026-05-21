@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "concurrently -n FE,BE -c cyan,blue \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
+    "start": "npm run start -w backend",
     "test": "npm run test -w frontend && npm run test -w backend",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
@@ -25,6 +26,6 @@
     "typescript": "^5.4.5"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.18.0"
   }
 }

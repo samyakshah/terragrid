@@ -7,10 +7,11 @@ import { ConfigPanel } from '@/components/ConfigPanel/ConfigPanel'
 import { SiteLayoutCanvas } from '@/components/SiteLayoutCanvas/SiteLayoutCanvas'
 import { LoadModal } from '@/components/LoadModal/LoadModal'
 import { QuoteCTA } from '@/components/QuoteCTA/QuoteCTA'
+import { SupportCard } from '@/components/SupportCard/SupportCard'
 import styles from './App.module.css'
 
 export default function App() {
-  const gf = useTerraGrid()
+  const terraGrid = useTerraGrid()
   const [loadOpen, setLoadOpen] = useState(false)
 
   /**
@@ -30,11 +31,11 @@ export default function App() {
   return (
     <div className={styles.app}>
       <Header
-        sessionId={gf.sessionId}
-        isSaving={gf.isSaving}
-        lastSavedAt={gf.lastSavedAt}
-        error={gf.error}
-        onDismissError={gf.clearError}
+        sessionId={terraGrid.sessionId}
+        isSaving={terraGrid.isSaving}
+        lastSavedAt={terraGrid.lastSavedAt}
+        error={terraGrid.error}
+        onDismissError={terraGrid.clearError}
       />
 
       <main className={styles.main}>
@@ -44,36 +45,36 @@ export default function App() {
         />
 
         <div id="planner" className={styles.planner}>
-          <SummaryBar summary={gf.summary} config={gf.config} />
+          <SummaryBar summary={terraGrid.summary} config={terraGrid.config} />
 
           <div className={styles.workspace}>
             <ConfigPanel
-              config={gf.config}
-              transformerCount={gf.summary.transformerCount}
-              onQuantityChange={gf.setQuantity}
+              config={terraGrid.config}
+              transformerCount={terraGrid.summary.transformerCount}
+              onQuantityChange={terraGrid.setQuantity}
             />
 
-            <SiteLayoutCanvas layout={gf.layout} summary={gf.summary} config={gf.config} />
+            <SiteLayoutCanvas
+              layout={terraGrid.layout}
+              summary={terraGrid.summary}
+              config={terraGrid.config}
+            />
           </div>
-          <section id="support" className={styles.support}>
-            <div>
-              <p className={styles.supportEyebrow}>Support</p>
-              <h2>Planning assumptions</h2>
-              <p>
-                TerraGrid automatically adds one transformer for every two batteries, calculates
-                budget and net energy, and packs devices into a deterministic 100ft-wide site
-                layout.
-              </p>
-            </div>
-
-            <a href="#planner">Back to planner</a>
-          </section>
         </div>
+        <SupportCard />
       </main>
 
-      <LoadModal open={loadOpen} onClose={() => setLoadOpen(false)} onLoad={gf.loadSession} />
+      <LoadModal
+        open={loadOpen}
+        onClose={() => setLoadOpen(false)}
+        onLoad={terraGrid.loadSession}
+      />
 
-      <QuoteCTA sessionId={gf.sessionId} config={gf.config} summary={gf.summary} />
+      <QuoteCTA
+        sessionId={terraGrid.sessionId}
+        config={terraGrid.config}
+        summary={terraGrid.summary}
+      />
     </div>
   )
 }

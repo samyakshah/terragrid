@@ -74,17 +74,8 @@ export function SiteLayoutCanvas({ layout, summary, config }: SiteLayoutCanvasPr
   const verticalGridLines = getGridLines(MAX_SITE_WIDTH_FT)
   const horizontalGridLines = getGridLines(canvasDepthFt)
 
-  const totalUsedWidthFt = layout.reduce((sum, row) => sum + row.totalWidthFt, 0)
-  const totalCapacityFt = Math.max(layout.length * MAX_SITE_WIDTH_FT, 1)
-  const packingEfficiency = hasLayout ? Math.round((totalUsedWidthFt / totalCapacityFt) * 100) : 0
-
-  const energyDensity =
-    'energyDensityKwhPerSqFt' in summary
-      ? `${summary.energyDensityKwhPerSqFt.toFixed(2)} kWh / sq ft`
-      : '0.00 kWh / sq ft'
-
   const handleDownloadPdf = async () => {
-    if (!exportRef.current || !hasLayout) return
+    if (!hasLayout) return
 
     setIsExporting(true)
 

@@ -96,72 +96,34 @@
   color: var(--gf-text-3);
 }
 
-/* ─── Stepper ─────────────────────────────────────────────────────────── */
-
-/* .stepper {
-  display: flex;
-  align-items: center;
-  gap: var(--gf-sp-1);
-}
-
-.stepBtn {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--gf-r-sm);
-  background: transparent;
-  border: 1px solid var(--gf-border);
-  color: var(--gf-text);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--gf-dur-fast) var(--gf-ease),
-              border-color var(--gf-dur-fast) var(--gf-ease);
-  padding: 0;
-}
-
-.stepBtn:hover:not(:disabled) {
-  background: var(--gf-raised);
-  border-color: var(--gf-border-strong);
-}
-
-.stepBtn[data-primary] {
-  background: var(--gf-red);
-  border-color: var(--gf-red);
-}
-
-.stepBtn[data-primary]:hover:not(:disabled) {
-  background: var(--gf-red-hover);
-  border-color: var(--gf-red-hover);
-}
-
-.stepBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.stepValue {
-  min-width: 24px;
-  text-align: center;
-  font-size: var(--gf-fs-body);
-  font-weight: 500;
-  color: var(--gf-text-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.stepValue[data-has-value] {
-  color: var(--gf-text);
-} */
-
 /* ─── Quantity input ─────────────────────────────────────────────────── */
 
 .quantityField {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 76px;
+  width: 86px;
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+}
+
+.quantityErrorSlot {
+  min-height: 0.85rem;
+  width: 86px;
+  color: #b42318;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: right;
+  white-space: normal;
+}
+
+.quantityErrorSlot span {
+  display: block;
+}
+.fieldError {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .quantityLabel {
@@ -201,9 +163,14 @@
 }
 
 .quantityInput:focus {
-  border-color: var(--gf-red);
+  border-color: var(--gf-border-strong);
   background: var(--gf-raised);
-  box-shadow: 0 0 0 3px rgba(232, 33, 39, 0.16);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
+}
+
+.quantityInput[aria-invalid='true'] {
+  border-color: #d92d20;
+  box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
 }
 
 /* ─── Transformer note ───────────────────────────────────────────────── */

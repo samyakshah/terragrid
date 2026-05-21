@@ -39,7 +39,9 @@ describe('computeLayout', () => {
     })
 
     it('never produces a row wider than 100ft, in any configuration', () => {
-      const layout = computeLayout(config({ megapackXL: 5, megapack2: 5, megapack: 5, powerPack: 10 }))
+      const layout = computeLayout(
+        config({ megapackXL: 5, megapack2: 5, megapack: 5, powerPack: 10 }),
+      )
       for (const row of layout) {
         expect(row.totalWidthFt).toBeLessThanOrEqual(100)
       }
@@ -51,7 +53,7 @@ describe('computeLayout', () => {
       expect(computeTransformerCount(EMPTY_CONFIG)).toBe(0)
     })
 
-    it('injects 0 transformers for 1 battery (floor rounding)', () => {
+    it('injects 1 transformer for 1 battery because partial battery groups still need transformer support', () => {
       expect(computeTransformerCount(config({ megapackXL: 1 }))).toBe(1)
     })
 

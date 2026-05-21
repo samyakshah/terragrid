@@ -60,9 +60,6 @@ export const TRANSFORMER_RATIO = 2
 /** No layout row may exceed this width in feet (spec). */
 export const MAX_SITE_WIDTH_FT = 100
 
-/** Average US household consumes ~12 MWh/year. Used for "homes powered" metric. */
-export const AVG_HOME_MWH_PER_YEAR = 12
-
 /** The four ordered DeviceType keys, for iteration in UI and tests. */
 export const DEVICE_KEYS: DeviceType[] = ['megapackXL', 'megapack2', 'megapack', 'powerPack']
 

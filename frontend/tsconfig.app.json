@@ -27,8 +27,9 @@
     /* Path aliases */
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../shared/dist/*"]
+      "@shared/*": ["../shared/src/*", "../shared/dist/*"]
     }
   },
-  "include": ["src", "../shared/src"]
+  "include": ["src", "../shared/src"],
+  "references": [{ "path": "../shared" }]
 }

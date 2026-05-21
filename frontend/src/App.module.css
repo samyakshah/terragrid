@@ -8,6 +8,10 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  /* Reserve space for the sticky CTA bar so it never overlaps page content.
+     The bar is ~72px tall + 24px bottom offset + a little breathing room = 112px.
+     This keeps the SupportCard's Contact Support button fully reachable. */
+  padding-bottom: 112px;
 }
 
 .planner {
@@ -19,6 +23,8 @@
   max-width: 1720px;
   width: 100%;
   margin: 0 auto;
+  background: color-mix(in srgb, var(--gf-surface) 92%, transparent);
+  backdrop-filter: blur(18px);
 }
 
 .workspace {
@@ -44,6 +50,11 @@
   .planner {
     padding: var(--gf-sp-4);
     gap: var(--gf-sp-6);
+  }
+
+  .main {
+    /* On mobile the CTA bar stacks to ~130px tall + 16px offset */
+    padding-bottom: 160px;
   }
 }
 

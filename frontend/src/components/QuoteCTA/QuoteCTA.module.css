@@ -1,12 +1,13 @@
 .barWrap {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  bottom: 24px;
   z-index: 40;
-  padding: var(--gf-sp-4);
+  width: clamp(520px, 62vw, 560px);
+  max-width: calc(100vw - 48px);
+  padding: 0;
   pointer-events: none;
-  transform: translateY(120%);
+  transform: translate(-50%, 120%);
   opacity: 0;
   transition:
     transform var(--gf-dur) var(--gf-ease),
@@ -14,23 +15,26 @@
 }
 
 .barWrap[data-visible] {
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   opacity: 1;
 }
 
 .bar {
   pointer-events: auto;
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--gf-sp-5);
   padding: 14px 18px 14px 22px;
-  background: var(--gf-surface);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--gf-border);
   border-radius: 999px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 18px 48px rgba(15, 23, 42, 0.16),
+    0 1px 2px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
 }
 
 .left {
@@ -326,7 +330,7 @@
   padding: 0 12px;
   border: 1px solid var(--gf-border);
   border-radius: var(--gf-r-sm);
-  background: var(--gf-bg);
+  background: var(--gf-ease);
   color: var(--gf-text);
   font-size: 14px;
   font-family: inherit;
@@ -334,6 +338,22 @@
   transition:
     border-color var(--gf-dur-fast) var(--gf-ease),
     box-shadow var(--gf-dur-fast) var(--gf-ease);
+}
+/* .field input[aria-invalid='true'] {
+  border-color: #d92d20;
+  box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
+} */
+
+.fieldErrorSlot {
+  min-height: 1rem;
+}
+
+.fieldError {
+  display: block;
+  color: #b42318;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .field input:focus {
@@ -492,10 +512,17 @@
 }
 
 @media (max-width: 720px) {
+  .barWrap {
+    bottom: 16px;
+    width: calc(100vw - 24px);
+    max-width: 520px;
+  }
+
   .bar {
     flex-direction: column;
     align-items: stretch;
     border-radius: var(--gf-r-md);
+    padding: 16px;
   }
 
   .left {

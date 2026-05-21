@@ -1,13 +1,12 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import request from 'supertest'
-import { unlinkSync, existsSync } from 'node:fs'
 import { closeDb } from '../db/index.js'
 
 // Use an in-memory DB for tests — fast and isolated.
 // MUST be set before importing the app, which initialises the DB lazily.
 process.env.DATABASE_PATH = ':memory:'
 
-const { default: app } = await import('../index.js')
+const { default: app } = await import('../app.js')
 
 const VALID_CONFIG = {
   quantities: { megapackXL: 2, megapack2: 0, megapack: 0, powerPack: 0 },
@@ -35,9 +34,7 @@ describe('POST /sessions', () => {
   })
 
   it('uses default name when name is omitted', async () => {
-    const res = await request(app)
-      .post('/sessions')
-      .send({ config: VALID_CONFIG })
+    const res = await request(app).post('/sessions').send({ config: VALID_CONFIG })
 
     expect(res.status).toBe(201)
     expect(res.body.session.name).toBe('Untitled site')
@@ -78,14 +75,15 @@ describe('GET /sessions/:id', () => {
 
 describe('PUT /sessions/:id', () => {
   it('updates name and config', async () => {
-    const created = await request(app)
-      .post('/sessions')
-      .send({ name: 'Old', config: VALID_CONFIG })
+    const created = await request(app).post('/sessions').send({ name: 'Old', config: VALID_CONFIG })
     const id = created.body.sessionId
 
     const updated = await request(app)
       .put(`/sessions/${id}`)
-      .send({ name: 'New', config: { quantities: { megapackXL: 5, megapack2: 0, megapack: 0, powerPack: 0 } } })
+      .send({
+        name: 'New',
+        config: { quantities: { megapackXL: 5, megapack2: 0, megapack: 0, powerPack: 0 } },
+      })
 
     expect(updated.status).toBe(200)
     expect(updated.body.session.name).toBe('New')
@@ -104,7 +102,7 @@ describe('PUT /sessions/:id', () => {
 describe('GET /sessions (list)', () => {
   it('returns sessions in updated_at DESC order', async () => {
     const a = await request(app).post('/sessions').send({ name: 'A', config: VALID_CONFIG })
-    await new Promise((r) => setTimeout(r, 5))  // ensure distinct timestamps
+    await new Promise((r) => setTimeout(r, 5)) // ensure distinct timestamps
     const b = await request(app).post('/sessions').send({ name: 'B', config: VALID_CONFIG })
 
     const list = await request(app).get('/sessions')

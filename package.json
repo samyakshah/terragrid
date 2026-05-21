@@ -9,23 +9,28 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "concurrently -n FE,BE -c cyan,blue \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "postinstall": "npm run build -w shared",
+    "dev": "npm run build -w shared && concurrently -n FE,BE -c cyan,blue \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
     "start": "npm run start -w backend",
     "test": "npm run test -w frontend && npm run test -w backend",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
-    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend"
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
+    "clean": "rm -rf frontend/dist backend/dist shared/dist backend/data/*.db backend/data/*.db-*"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "eslint": "^8.57.0",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
   },
   "engines": {
     "node": "20.18.0"
+  },
+  "dependencies": {
+    "pako": "^1.0.11"
   }
 }

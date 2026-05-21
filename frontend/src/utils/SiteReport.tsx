@@ -1,8 +1,7 @@
-// frontend/src/utils/SiteReport.tsx
 // A React component tree that renders to PDF via @react-pdf/renderer.
 // Pages flow automatically; the layout diagram breaks naturally across pages.
-
-import { Document, Page, Text, View, StyleSheet, Svg, Rect } from '@react-pdf/renderer'
+import type { ReactNode } from 'react'
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { LayoutRow, SiteConfig, SiteSummary } from '@shared/types'
 import { DEVICE_KEYS, DEVICES, MAX_SITE_WIDTH_FT, TRANSFORMER } from '@/constants/devices'
 import { formatBudget, formatEnergy, formatLand } from '@/lib/format'
@@ -125,11 +124,6 @@ function deviceName(type: string): string {
   return DEVICES[type as keyof typeof DEVICES]?.name ?? type
 }
 
-function deviceCost(type: string): number {
-  if (type === 'transformer') return TRANSFORMER.cost
-  return DEVICES[type as keyof typeof DEVICES]?.cost ?? 0
-}
-
 export function SiteReport({ layout, config, summary, generatedAt }: SiteReportProps) {
   // Selected devices, with auto-injected transformer row appended
   const selectedDevices = DEVICE_KEYS.filter((key) => config.quantities[key] > 0).map((key) => ({
@@ -148,7 +142,7 @@ export function SiteReport({ layout, config, summary, generatedAt }: SiteReportP
     })
   }
 
-  const PdfPage = ({ children }: { children: React.ReactNode }) => (
+  const PdfPage = ({ children }: { children: ReactNode }) => (
     <Page size="LETTER" style={styles.page} wrap>
       {children}
       <View style={styles.footer} fixed>

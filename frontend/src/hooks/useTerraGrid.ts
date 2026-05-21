@@ -6,6 +6,7 @@ import { calculateSummary } from '@/utils/calculator'
 import * as api from '@/lib/api'
 import { ApiError } from '@/lib/api'
 import { readSessionIdFromUrl, writeSessionIdToUrl, clearSessionIdFromUrl } from '@/lib/sessionUrl'
+import { TOTAL_BATTERY_QUANTITY_MAX } from '@/constants/validation'
 
 /**
  * The single source of truth for TerraGrid's runtime state.
@@ -104,13 +105,29 @@ export function useTerraGrid(): UseTerraGrid {
   }, [performSave])
 
   // Actions
-
   const setQuantity = useCallback(
-    (type: DeviceType, qty: number) => {
-      const safeQty = Math.max(0, Math.floor(qty))
-      setConfig((prev) => ({
-        quantities: { ...prev.quantities, [type]: safeQty },
-      }))
+    (deviceType: DeviceType, qty: number) => {
+      setConfig((prev) => {
+        const normalizedQty = Math.max(0, Math.floor(qty))
+
+        const currentTotal = Object.entries(prev.quantities).reduce((sum, [key, value]) => {
+          if (key === deviceType) return sum
+          return sum + value
+        }, 0)
+
+        const maxAllowedForThisDevice = Math.max(0, TOTAL_BATTERY_QUANTITY_MAX - currentTotal)
+
+        const safeQty = Math.min(normalizedQty, maxAllowedForThisDevice)
+
+        return {
+          ...prev,
+          quantities: {
+            ...prev.quantities,
+            [deviceType]: safeQty,
+          },
+        }
+      })
+
       scheduleSave()
     },
     [scheduleSave],

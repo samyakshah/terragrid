@@ -103,11 +103,11 @@ export interface CreateOrderRequest {
   config: SiteConfig
   summary: SiteSummary
   contact: OrderContactInfo
-  payment: OrderPaymentSummary
-  dueTodayCents: number
+  payment?: OrderPaymentSummary
+  depositCents?: number
 }
 
 export interface CreateOrderResponse {
   orderId: string
-  createdAt: string
+  createdAt: number
 }

@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { SiteConfig, SiteSummary } from '@shared/types'
 import { DEVICE_KEYS, DEVICES, TRANSFORMER } from '@/constants/devices'
+import { FIELD_LIMITS } from '@/constants/validation'
 import { createPurchaseOrder } from '@/lib/api'
-import { formatBudget, formatLand, formatEnergy } from '@/lib/format'
+import { formatBudget, formatEnergy, formatLand } from '@/lib/format'
+import { getEmailError, getPhoneError, getTextLengthError } from '@/lib/validation'
 import styles from './QuoteCTA.module.css'
+import { TextField } from '@/components/FormFields/FormFields'
 
 interface QuoteDrawerProps {
   open: boolean
@@ -25,6 +28,8 @@ interface FormState {
   contactPreference: ContactPreference
 }
 
+type FormErrors = Partial<Record<keyof FormState, string>>
+
 const INITIAL_FORM: FormState = {
   companyName: '',
   installationAddress: '',
@@ -35,67 +40,152 @@ const INITIAL_FORM: FormState = {
   contactPreference: 'email',
 }
 
-/**
- * Slide-in drawer that captures a quote request.
- *
- * Layout: order summary at top (so user verifies what they're requesting),
- * sectioned contact form below (Site, Contact, Communication).
- *
- * No payment fields — industrial procurement happens via sales conversation,
- * not online checkout. The backend persists this as a row in purchase_orders
- * with null payment fields.
- */
+function validateForm(form: FormState): FormErrors {
+  const errors: FormErrors = {}
+
+  const companyNameError = getTextLengthError(
+    'Company name',
+    form.companyName,
+    FIELD_LIMITS.companyNameMin,
+    FIELD_LIMITS.companyNameMax,
+  )
+
+  const addressError = getTextLengthError(
+    'Installation address',
+    form.installationAddress,
+    FIELD_LIMITS.installationAddressMin,
+    FIELD_LIMITS.installationAddressMax,
+  )
+
+  const firstNameError = getTextLengthError(
+    'First name',
+    form.firstName,
+    FIELD_LIMITS.firstNameMin,
+    FIELD_LIMITS.firstNameMax,
+  )
+
+  const lastNameError = getTextLengthError(
+    'Last name',
+    form.lastName,
+    FIELD_LIMITS.lastNameMin,
+    FIELD_LIMITS.lastNameMax,
+  )
+
+  const emailError = getEmailError(form.email)
+  const phoneError = getPhoneError(form.phoneNumber)
+
+  if (companyNameError) errors.companyName = companyNameError
+  if (addressError) errors.installationAddress = addressError
+  if (firstNameError) errors.firstName = firstNameError
+  if (lastNameError) errors.lastName = lastNameError
+  if (emailError) errors.email = emailError
+  if (phoneError) errors.phoneNumber = phoneError
+
+  return errors
+}
+
 export function QuoteDrawer({ open, onClose, sessionId, config, summary }: QuoteDrawerProps) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [reference, setReference] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [touchedFields, setTouchedFields] = useState<Partial<Record<keyof FormState, boolean>>>({})
 
-  // Reset when closed
+  const selectedDevices = useMemo(
+    () =>
+      DEVICE_KEYS.filter((key) => config.quantities[key] > 0).map((key) => ({
+        name: DEVICES[key].name,
+        quantity: config.quantities[key],
+        subtotal: config.quantities[key] * DEVICES[key].cost,
+      })),
+    [config.quantities],
+  )
+
+  const currentErrors = useMemo(() => validateForm(form), [form])
+  const isValid = Object.keys(currentErrors).length === 0
+
+  const resetDrawerState = () => {
+    setForm(INITIAL_FORM)
+    setErrors({})
+    setTouchedFields({})
+    setHasSubmittedOnce(false)
+    setIsSubmitting(false)
+    setReference(null)
+    setConfirmationEmail(null)
+    setServerError(null)
+  }
+
   useEffect(() => {
     if (!open) {
-      setError(null)
+      resetDrawerState()
     }
   }, [open])
 
-  // Esc-to-close
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClose()
+      }
     }
+
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
-
-  const selectedDevices = DEVICE_KEYS.filter((key) => config.quantities[key] > 0).map((key) => ({
-    name: DEVICES[key].name,
-    quantity: config.quantities[key],
-    subtotal: config.quantities[key] * DEVICES[key].cost,
-  }))
-
-  const isValid =
-    form.companyName.trim().length > 0 &&
-    form.installationAddress.trim().length > 0 &&
-    form.firstName.trim().length > 0 &&
-    form.lastName.trim().length > 0 &&
-    form.email.includes('@') &&
-    form.phoneNumber.trim().length >= 7
+  }, [open])
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }))
-    setError(null)
+    setForm((prev) => {
+      const next = { ...prev, [key]: value }
+
+      if (hasSubmittedOnce) {
+        setErrors(validateForm(next))
+      }
+
+      return next
+    })
+
+    setServerError(null)
   }
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const markTouched = (key: keyof FormState) => {
+    setTouchedFields((prev) => ({ ...prev, [key]: true }))
+    setErrors(validateForm(form))
+  }
+
+  const getVisibleError = (key: keyof FormState) => {
+    if (!hasSubmittedOnce && !touchedFields[key]) {
+      return undefined
+    }
+
+    return errors[key]
+  }
+
+  const handleClose = () => {
+    resetDrawerState()
+    onClose()
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!isValid) {
-      setError('Please complete all required fields before submitting.')
+
+    const nextErrors = validateForm(form)
+    setErrors(nextErrors)
+    setHasSubmittedOnce(true)
+
+    if (Object.keys(nextErrors).length > 0) {
+      setServerError('Please fix the highlighted fields before submitting.')
       return
     }
 
+    const submittedEmail = form.email.trim()
+
     setIsSubmitting(true)
-    setError(null)
+    setServerError(null)
+
     try {
       const response = await createPurchaseOrder({
         sessionId,
@@ -106,23 +196,22 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
           installationAddress: form.installationAddress.trim(),
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
-          email: form.email.trim(),
+          email: submittedEmail,
           phoneNumber: form.phoneNumber.trim(),
           contactPreference: form.contactPreference,
         },
       })
+
+      setConfirmationEmail(submittedEmail)
       setReference(response.orderId)
       setForm(INITIAL_FORM)
+      setErrors({})
+      setHasSubmittedOnce(false)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to submit your quote request.')
+      setServerError(e instanceof Error ? e.message : 'Unable to submit your quote request.')
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleClose = () => {
-    setReference(null)
-    onClose()
   }
 
   if (!open) return null
@@ -143,6 +232,7 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
               {reference ? 'Request received' : 'Request a quote'}
             </h2>
           </div>
+
           <button
             type="button"
             className={styles.closeButton}
@@ -154,10 +244,13 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
         </header>
 
         {reference ? (
-          <SuccessState reference={reference} email={form.email} onClose={handleClose} />
+          <SuccessState
+            reference={reference}
+            email={confirmationEmail ?? ''}
+            onClose={handleClose}
+          />
         ) : (
           <>
-            {/* Order summary */}
             <section className={styles.summary}>
               <h3 className={styles.summaryTitle}>What you're requesting</h3>
 
@@ -170,6 +263,7 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
                     <strong>{formatBudget(row.subtotal)}</strong>
                   </div>
                 ))}
+
                 {summary.transformerCount > 0 && (
                   <div className={styles.summaryRow} data-secondary="true">
                     <span>
@@ -186,6 +280,7 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
                   {formatLand(summary.siteWidthFt, summary.siteDepthFt)} ·{' '}
                   {formatEnergy(summary.netEnergyMWh)} net
                 </span>
+
                 <div className={styles.summaryTotal}>
                   <span>Estimated total</span>
                   <strong>{formatBudget(summary.totalBudget)}</strong>
@@ -193,53 +288,78 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
               </div>
             </section>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleSubmit} className={styles.form} noValidate>
               <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Site</legend>
-                <Field
+
+                <TextField
                   label="Company name"
                   value={form.companyName}
-                  onChange={(v) => update('companyName', v)}
+                  error={getVisibleError('companyName')}
+                  maxLength={FIELD_LIMITS.companyNameMax}
+                  onBlur={() => markTouched('companyName')}
+                  onChange={(value) => update('companyName', value)}
                 />
-                <Field
+
+                <TextField
                   label="Installation address"
                   value={form.installationAddress}
-                  onChange={(v) => update('installationAddress', v)}
+                  error={getVisibleError('installationAddress')}
+                  maxLength={FIELD_LIMITS.installationAddressMax}
+                  onBlur={() => markTouched('installationAddress')}
+                  onChange={(value) => update('installationAddress', value)}
                   placeholder="Street, city, state"
                 />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Contact</legend>
+
                 <div className={styles.fieldRow}>
-                  <Field
+                  <TextField
                     label="First name"
                     value={form.firstName}
-                    onChange={(v) => update('firstName', v)}
+                    error={getVisibleError('firstName')}
+                    maxLength={FIELD_LIMITS.firstNameMax}
+                    onBlur={() => markTouched('firstName')}
+                    onChange={(value) => update('firstName', value)}
                   />
-                  <Field
+
+                  <TextField
                     label="Last name"
                     value={form.lastName}
-                    onChange={(v) => update('lastName', v)}
+                    error={getVisibleError('lastName')}
+                    maxLength={FIELD_LIMITS.lastNameMax}
+                    onBlur={() => markTouched('lastName')}
+                    onChange={(value) => update('lastName', value)}
                   />
                 </div>
-                <Field
+
+                <TextField
                   label="Email"
                   type="email"
                   value={form.email}
-                  onChange={(v) => update('email', v)}
+                  error={getVisibleError('email')}
+                  maxLength={FIELD_LIMITS.emailMax}
+                  onBlur={() => markTouched('email')}
+                  onChange={(value) => update('email', value)}
                 />
-                <Field
+
+                <TextField
                   label="Phone"
+                  type="tel"
                   value={form.phoneNumber}
-                  onChange={(v) => update('phoneNumber', v)}
-                  placeholder="(201) 555-0123"
+                  error={getVisibleError('phoneNumber')}
+                  maxLength={14}
+                  onBlur={() => markTouched('phoneNumber')}
+                  onChange={(value) => update('phoneNumber', value)}
+                  placeholder="2015550123"
                 />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Preferred contact method</legend>
+
                 <div className={styles.choices}>
                   {(['email', 'phone', 'sms'] as ContactPreference[]).map((pref) => (
                     <label key={pref} className={styles.choice}>
@@ -256,7 +376,7 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
                 </div>
               </fieldset>
 
-              {error && <p className={styles.error}>{error}</p>}
+              {serverError && <p className={styles.error}>{serverError}</p>}
 
               <div className={styles.formActions}>
                 <button
@@ -267,12 +387,13 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
                 >
                   Cancel
                 </button>
+
                 <button
                   type="submit"
                   className={styles.primaryButton}
                   disabled={!isValid || isSubmitting}
                 >
-                  {isSubmitting ? 'Submitting…' : 'Submit request'}
+                  {isSubmitting ? 'Submitting...' : 'Submit request'}
                 </button>
               </div>
 
@@ -288,8 +409,6 @@ export function QuoteDrawer({ open, onClose, sessionId, config, summary }: Quote
   )
 }
 
-// Subcomponents
-
 function SuccessState({
   reference,
   email,
@@ -300,48 +419,27 @@ function SuccessState({
   onClose: () => void
 }) {
   const shortRef = reference.slice(0, 8).toUpperCase()
+
   return (
     <div className={styles.success}>
       <div className={styles.successIcon} aria-hidden="true">
         ✓
       </div>
+
       <h3 className={styles.successTitle}>Quote request submitted</h3>
+
       <p className={styles.successBody}>
         Reference <strong>TG-{shortRef}</strong>
       </p>
+
       <p className={styles.successBody}>
         A TerraGrid specialist will reach out to <strong>{email || 'you'}</strong> within 1 business
         day to discuss next steps, finalize pricing, and schedule a site review.
       </p>
+
       <button type="button" className={styles.primaryButton} onClick={onClose}>
         Back to planner
       </button>
     </div>
-  )
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  placeholder,
-}: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  type?: string
-  placeholder?: string
-}) {
-  return (
-    <label className={styles.field}>
-      <span>{label}</span>
-      <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </label>
   )
 }

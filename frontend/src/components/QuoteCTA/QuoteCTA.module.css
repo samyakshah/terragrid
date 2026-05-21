@@ -3,7 +3,7 @@
   left: 50%;
   bottom: 24px;
   z-index: 40;
-  width: clamp(520px, 62vw, 560px);
+  width: clamp(720px, 62vw, 560px);
   max-width: calc(100vw - 48px);
   padding: 0;
   pointer-events: none;

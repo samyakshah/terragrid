@@ -14,7 +14,7 @@ import type { Session, SiteConfig } from '@shared/types'
 interface SessionRow {
   id: string
   name: string
-  config: string   // JSON-encoded SiteConfig
+  config: string // JSON-encoded SiteConfig
   created_at: number
   updated_at: number
 }
@@ -34,7 +34,9 @@ export function createSession(data: { name: string; config: SiteConfig }): Sessi
   const now = Date.now()
 
   getDb()
-    .prepare(`INSERT INTO sessions (id, name, config, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`)
+    .prepare(
+      `INSERT INTO sessions (id, name, config, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+    )
     .run(id, data.name, JSON.stringify(data.config), now, now)
 
   return {
@@ -47,9 +49,9 @@ export function createSession(data: { name: string; config: SiteConfig }): Sessi
 }
 
 export function findSession(id: string): Session | null {
-  const row = getDb()
-    .prepare(`SELECT * FROM sessions WHERE id = ?`)
-    .get(id) as SessionRow | undefined
+  const row = getDb().prepare(`SELECT * FROM sessions WHERE id = ?`).get(id) as
+    | SessionRow
+    | undefined
 
   return row ? rowToSession(row) : null
 }
@@ -81,9 +83,7 @@ export function listSessions(limit: number): Session[] {
 }
 
 export function deleteSession(id: string): boolean {
-  const result = getDb()
-    .prepare(`DELETE FROM sessions WHERE id = ?`)
-    .run(id)
+  const result = getDb().prepare(`DELETE FROM sessions WHERE id = ?`).run(id)
 
   return result.changes > 0
 }

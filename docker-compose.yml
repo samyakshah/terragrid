@@ -1,0 +1,25 @@
+services:
+  terragrid-backend:
+    container_name: terragrid-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/app/data
+    environment:
+      PORT: 3001
+      DATABASE_PATH: /app/data/sessions.db
+      CORS_ORIGIN: http://localhost:8000
+      NODE_ENV: production
+
+  terragrid-frontend:
+    container_name: terragrid-frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - terragrid-backend

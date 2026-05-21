@@ -1,0 +1,29 @@
+{
+  "name": "terragrid",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TerraGrid — Industrial Battery Site Configurator. Design, visualize, and save battery storage sites.",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n FE,BE -c cyan,blue \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "test": "npm run test -w frontend && npm run test -w backend",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,108 @@
+/*
+ * TerraGrid — design tokens.
+ *
+ * Single source of truth for colour, type, spacing, and radii. All component
+ * CSS reads from these variables. Never use hex literals in components.
+ *
+ * Theme inspiration: Tesla's product UI — deep neutrals, surgical red accent,
+ * white text, generous negative space.
+ */
+
+:root {
+  /* ─── Surfaces ─────────────────────────────────────────── */
+  --gf-bg:          #171a20;   /* page background */
+  --gf-surface:     #1f2228;   /* card / panel surface */
+  --gf-raised:      #2a2d34;   /* hover, elevated controls */
+  --gf-sunken:      #0f1115;   /* insets, code blocks */
+
+  /* ─── Borders ──────────────────────────────────────────── */
+  --gf-border:        #3a3d44;
+  --gf-border-subtle: #2a2d34;
+  --gf-border-strong: #54585f;
+
+  /* ─── Text ─────────────────────────────────────────────── */
+  --gf-text:    #ffffff;
+  --gf-text-2:  #9ea1a6;        /* secondary, labels */
+  --gf-text-3:  #5e6168;        /* tertiary, metadata */
+
+  /* ─── Accents ──────────────────────────────────────────── */
+  --gf-red:          #e82127;   /* primary CTAs only */
+  --gf-red-hover:    #c91a1f;
+  --gf-red-muted:    rgba(232, 33, 39, 0.12);
+
+  --gf-success:       #5bb318;
+  --gf-success-muted: rgba(91, 179, 24, 0.12);
+  --gf-warning:       #f4a523;
+  --gf-warning-muted: rgba(244, 165, 35, 0.12);
+
+  /* ─── Typography ───────────────────────────────────────── */
+  --gf-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --gf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --gf-fs-display:  28px;
+  --gf-fs-title:    18px;
+  --gf-fs-body:     14px;
+  --gf-fs-caption:  12px;
+  --gf-fs-over:     11px;
+
+  /* ─── Spacing scale (4px base) ─────────────────────────── */
+  --gf-sp-1: 4px;
+  --gf-sp-2: 8px;
+  --gf-sp-3: 12px;
+  --gf-sp-4: 16px;
+  --gf-sp-5: 20px;
+  --gf-sp-6: 24px;
+  --gf-sp-8: 32px;
+  --gf-sp-10: 40px;
+
+  /* ─── Radii ────────────────────────────────────────────── */
+  --gf-r-sm: 4px;
+  --gf-r-md: 8px;
+  --gf-r-lg: 12px;
+
+  /* ─── Motion ───────────────────────────────────────────── */
+  --gf-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --gf-dur-fast: 120ms;
+  --gf-dur:      200ms;
+}
+
+/* ─── Reset + base ───────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--gf-bg);
+  color: var(--gf-text);
+  font-family: var(--gf-font-sans);
+  font-size: var(--gf-fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input, button {
+  color: inherit;
+}
+
+/* Focus ring — accessibility, no exceptions */
+:focus-visible {
+  outline: 2px solid var(--gf-red);
+  outline-offset: 2px;
+}

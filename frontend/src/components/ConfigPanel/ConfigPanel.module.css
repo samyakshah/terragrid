@@ -1,0 +1,258 @@
+/* ─── Panel container ────────────────────────────────────────────────── */
+
+.panel {
+  background: var(--gf-surface);
+  border: 0.5px solid var(--gf-border);
+  border-radius: var(--gf-r-md);
+  padding: var(--gf-sp-5);
+  height: fit-content;
+}
+
+.title {
+  font-size: var(--gf-fs-over);
+  color: var(--gf-text-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--gf-sp-4);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gf-sp-2);
+  margin-bottom: var(--gf-sp-3);
+}
+
+/* ─── Battery card ───────────────────────────────────────────────────── */
+
+.card {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: var(--gf-sp-3);
+  padding: var(--gf-sp-3);
+  background: var(--gf-bg);
+  border: 0.5px solid var(--gf-border-subtle);
+  border-radius: var(--gf-r-sm);
+  transition: border-color var(--gf-dur-fast) var(--gf-ease);
+}
+
+.card[data-selected] {
+  border-color: var(--gf-border-strong);
+}
+
+.cardVisual {
+  width: 36px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.cardVisualBar {
+  height: 18px;
+  border-radius: 2px;
+  transition: width var(--gf-dur) var(--gf-ease);
+}
+
+.cardVisualBar[data-type='megapackXL'] {
+  background: #185fa5;
+}
+.cardVisualBar[data-type='megapack2'] {
+  background: #0f6e56;
+}
+.cardVisualBar[data-type='megapack'] {
+  background: #854f0b;
+}
+.cardVisualBar[data-type='powerPack'] {
+  background: #993556;
+}
+
+.cardInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardName {
+  font-size: var(--gf-fs-body);
+  font-weight: 500;
+  color: var(--gf-text);
+  line-height: 1.2;
+}
+
+.cardSpecs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gf-sp-1);
+  font-size: var(--gf-fs-caption);
+  color: var(--gf-text-2);
+  line-height: 1.2;
+}
+
+.specDot {
+  color: var(--gf-text-3);
+}
+
+/* ─── Stepper ─────────────────────────────────────────────────────────── */
+
+/* .stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--gf-sp-1);
+}
+
+.stepBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--gf-r-sm);
+  background: transparent;
+  border: 1px solid var(--gf-border);
+  color: var(--gf-text);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--gf-dur-fast) var(--gf-ease),
+              border-color var(--gf-dur-fast) var(--gf-ease);
+  padding: 0;
+}
+
+.stepBtn:hover:not(:disabled) {
+  background: var(--gf-raised);
+  border-color: var(--gf-border-strong);
+}
+
+.stepBtn[data-primary] {
+  background: var(--gf-red);
+  border-color: var(--gf-red);
+}
+
+.stepBtn[data-primary]:hover:not(:disabled) {
+  background: var(--gf-red-hover);
+  border-color: var(--gf-red-hover);
+}
+
+.stepBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.stepValue {
+  min-width: 24px;
+  text-align: center;
+  font-size: var(--gf-fs-body);
+  font-weight: 500;
+  color: var(--gf-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepValue[data-has-value] {
+  color: var(--gf-text);
+} */
+
+/* ─── Quantity input ─────────────────────────────────────────────────── */
+
+.quantityField {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 76px;
+}
+
+.quantityLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.quantityInput {
+  width: 74px;
+  height: 34px;
+  border-radius: var(--gf-r-sm);
+  border: 1px solid var(--gf-border);
+  background: var(--gf-bg);
+  color: var(--gf-text);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  padding: 0 8px 0 12px;
+  outline: none;
+  transition:
+    border-color var(--gf-dur-fast) var(--gf-ease),
+    box-shadow var(--gf-dur-fast) var(--gf-ease),
+    background var(--gf-dur-fast) var(--gf-ease);
+}
+
+.quantityInput:hover {
+  border-color: var(--gf-border-strong);
+  background: var(--gf-raised);
+}
+
+.quantityInput:focus {
+  border-color: var(--gf-red);
+  background: var(--gf-raised);
+  box-shadow: 0 0 0 3px rgba(232, 33, 39, 0.16);
+}
+
+/* ─── Transformer note ───────────────────────────────────────────────── */
+
+.transformer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--gf-sp-3) var(--gf-sp-4);
+  background: var(--gf-bg);
+  border: 0.5px dashed var(--gf-border);
+  border-radius: var(--gf-r-sm);
+}
+
+.transformerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.transformerLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--gf-sp-2);
+  font-size: var(--gf-fs-body);
+  font-weight: 500;
+  color: var(--gf-text-2);
+}
+
+.transformerBadge {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--gf-text-3);
+  background: var(--gf-raised);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.transformerHint {
+  font-size: var(--gf-fs-caption);
+  color: var(--gf-text-3);
+}
+
+.transformerCount {
+  font-size: var(--gf-fs-title);
+  font-weight: 500;
+  color: var(--gf-text);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: right;
+}

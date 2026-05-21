@@ -17,7 +17,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
     "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
-    "clean": "rm -rf frontend/dist backend/dist shared/dist backend/data/*.db backend/data/*.db-*"
+    "clean": "rm -rf forontend/node_modules frontend/dist backend/node_modules backend/dist shared/node_modules shared/dist backend/data/*.db backend/data/*.db-*"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.7.0",

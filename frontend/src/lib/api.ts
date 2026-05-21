@@ -10,7 +10,7 @@ import type { SiteConfig, Session } from '@shared/types'
  * Errors are normalised to `ApiError` so callers can handle them uniformly.
  */
 
-const BASE = '/api'
+const BASE = import.meta.env.PROD ? '' : '/api'
 
 export class ApiError extends Error {
   constructor(
@@ -62,7 +62,9 @@ export interface UpdateSessionInput {
   config?: SiteConfig
 }
 
-export function createSession(input: CreateSessionInput): Promise<{ sessionId: string; session: Session }> {
+export function createSession(
+  input: CreateSessionInput,
+): Promise<{ sessionId: string; session: Session }> {
   return request('/sessions', { method: 'POST', body: JSON.stringify(input) })
 }
 
@@ -70,7 +72,10 @@ export function getSession(id: string): Promise<{ session: Session }> {
   return request(`/sessions/${encodeURIComponent(id)}`)
 }
 
-export function updateSession(id: string, input: UpdateSessionInput): Promise<{ session: Session }> {
+export function updateSession(
+  id: string,
+  input: UpdateSessionInput,
+): Promise<{ session: Session }> {
   return request(`/sessions/${encodeURIComponent(id)}`, {
     method: 'PUT',
     body: JSON.stringify(input),

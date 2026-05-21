@@ -270,7 +270,7 @@ function SupportDrawer({ open, onClose }: { open: boolean; onClose: () => void }
             />
 
             <TextAreaField
-              label="Message"
+              label="Message (Min. 10 characters required)"
               value={form.message}
               error={getVisibleError('message')}
               maxLength={MESSAGE_MAX}

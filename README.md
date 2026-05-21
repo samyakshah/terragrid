@@ -52,7 +52,7 @@ v
 # 1. Install all workspace dependencies from the repo root
 npm install
 
-# 2. Create the backend environment file
+# 2. Create the backend environment file (optional, can skip to #3)
 cp backend/.env.example backend/.env
 
 # 3. Start frontend + backend concurrently
